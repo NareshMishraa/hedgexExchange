@@ -1,0 +1,116 @@
+/* index.css or app.css */
+
+/* Body / background */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #0a0a0f 0%, #1a1a1e 100%);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Auth container */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 2rem;
+}
+
+/* Card / login box */
+.auth-card {
+  background: rgba(20, 20, 30, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Headings */
+.auth-card h2 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #00d8ff; /* highlight color */
+}
+
+/* Input fields */
+.auth-card input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 1rem;
+}
+
+.auth-card input::placeholder {
+  color: #aaa;
+}
+
+/* PasswordInput wrapper */
+.password-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input button {
+  position: absolute;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  color: #00d8ff;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+/* Links */
+.aux-links {
+  text-align: right;
+}
+
+.aux-links a {
+  color: #00d8ff;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.aux-links a:hover {
+  text-decoration: underline;
+}
+
+/* Buttons */
+.auth-card button[type="submit"] {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #00d8ff;
+  color: #000;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.auth-card button[type="submit"]:hover {
+  background: #00a3cc;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 2rem 1rem;
+  }
+}
