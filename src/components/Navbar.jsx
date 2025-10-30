@@ -37,15 +37,19 @@ const Navbar = () => {
 
   const handleDisconnect = () => {
     // Clear session
-    setConnectedWallet(null);
+     setConnectedWallet(null);
     setIsConnected(false);
     setShowModal(false);
-    localStore.removeItem(STORAGES.TOKEN);
+   
+  };
+  const handleLogout=()=>{
+   
+     localStore.removeItem(STORAGES.TOKEN);
     localStore.removeItem(STORAGES.EMAIL);
     // Redirect to home
     navigate("/");
     setHasToken(false);
-  };
+  }
 
   return (
     <div className="bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900">
@@ -65,7 +69,7 @@ const Navbar = () => {
 
             {/* Right Section: Show only when logged in */}
             {hasToken && (
-              <div className="flex items-center gap-3">
+              <div className="relative flex items-center gap-3">
                 <WalletConnect
                   isConnected={isConnected}
                   connectedWallet={connectedWallet}
@@ -77,7 +81,7 @@ const Navbar = () => {
                 />
 
                 <button
-                  onClick={handleDisconnect}
+                  onClick={handleLogout}
                   className="flex items-center gap-2 px-4 py-2 rounded-md bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm font-medium transition transform hover:scale-105 hover:shadow-lg"
                 >
                   <LogOut size={18} />

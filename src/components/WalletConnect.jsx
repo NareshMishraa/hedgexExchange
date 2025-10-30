@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Wallet, 
-  X, 
-  CheckCircle, 
-  ExternalLink, 
-  Download, 
+import {
+  Wallet,
+  X,
+  CheckCircle,
+  ExternalLink,
+  Download,
   Shield,
   Zap,
   Globe,
@@ -17,8 +18,8 @@ import { useSwitchChain } from 'wagmi';
 import { useGetAllWalletsMutation } from '../api/authApi';
 import localStore from "./localStore";
 import { useSelector } from "react-redux";
-import {STORAGES, SUPPORTED_WALLETS} from "./Store";
-import {toast} from "react-toastify";
+import { STORAGES, SUPPORTED_WALLETS } from "./Store";
+import { toast } from "react-toastify";
 
 /* -------- Base Mainnet constants -------- */
 const BASE_CHAIN_ID = 8453;
@@ -67,12 +68,12 @@ async function requestAddOrSwitchBase() {
   }
 }
 
-function WalletConnect({ 
-  isConnected: isConnectedProp, 
-  connectedWallet, 
-  onConnect, 
-  onDisconnect, 
-  showModal, 
+function WalletConnect({
+  isConnected: isConnectedProp,
+  connectedWallet,
+  onConnect,
+  onDisconnect,
+  showModal,
   setShowModal,
   bypassAuthForIdo = false,
 }) {
@@ -159,7 +160,7 @@ function WalletConnect({
           return connectors.find(c => lower(c.id).includes('app.phantom')) || connectors.find(c => lower(c.id).includes('phantom')) || connectors.find(c => lower(c.name).includes('phantom'));
         default:
           {
-          return connectors[0];
+            return connectors[0];
           }
       }
     };
@@ -179,11 +180,11 @@ function WalletConnect({
   };
 
   const handleWalletSelect = async (wallet) => {
-    
+
     try {
       setIsConnecting(wallet.id);
       setConnectionStep('connecting');
-      
+
       const connector = connectorForWalletId(wallet.id);
       if (!connector) throw new Error('No compatible connector found');
 
@@ -226,10 +227,10 @@ function WalletConnect({
         const referralCode = matchedEntry?.referralCode;
         if (referralCode) {
           localStore.setItem(STORAGES.REFERRAL_CODE || 'referralCode', referralCode);
-          try { window.dispatchEvent(new Event('referralCodeChanged')); } catch (_) {}
+          try { window.dispatchEvent(new Event('referralCodeChanged')); } catch (_) { }
         }
       }
-  
+
 
       setConnectionStep('success');
       setTimeout(() => {
@@ -247,17 +248,17 @@ function WalletConnect({
   const handleDisconnect = () => {
     disconnect();
     onDisconnect?.();
-    try { 
-      localStore.removeItem(STORAGES.REFERRAL_CODE || 'referralCode'); 
-      try { window.dispatchEvent(new Event('referralCodeChanged')); } catch (_) {}
-    } catch (_) {}
+    try {
+      localStore.removeItem(STORAGES.REFERRAL_CODE || 'referralCode');
+      try { window.dispatchEvent(new Event('referralCodeChanged')); } catch (_) { }
+    } catch (_) { }
     setShowModal(false);
   };
 
   // wallet check 
   // const [getAllWallets] = useGetAllWalletsMutation();
   const [walletsData, setWalletsData] = useState([]);
-  
+
   // useEffect(() => {
   //   const localEmail = localStore?.getItem(STORAGES?.REMEMBERED_EMAIL);
   //   const fetchWallets = async () => {
@@ -272,7 +273,7 @@ function WalletConnect({
   //       console.error('Failed to fetch wallet status:', error);
   //     }
   //   };
-    
+
   //   fetchWallets();
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [showModal]);
@@ -280,46 +281,45 @@ function WalletConnect({
   const wrongChain = isConnected && chainId && chainId !== BASE_CHAIN_ID;
 
   return (
-     <>
+    <>
       {/* Wallet Connect Button */}
       <motion.button
         onClick={() => setShowModal(true)}
-        className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all backdrop-blur-xl border ${
-          isConnected
-            ? (wrongChain 
-                ? 'bg-amber-500/20 text-amber-300 border-amber-500/30 hover:bg-amber-500/30'
-                : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30')
-            : 'bg-blue-500/20 text-blue-400 border-blue-500/30 hover:bg-blue-500/30'
-        }`}
+        className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all backdrop-blur-xl border ${isConnected
+          ? (wrongChain
+            ? 'bg-blue-500/20 text-blue-400 border-blue-500/30 hover:bg-blue-500/30'
+            : 'bg-blue-500/20 text-blue-400 border-blue-500/30 hover:bg-blue-500/30')
+          : 'bg-blue-500/20 text-blue-400 border-blue-500/30 hover:bg-blue-500/30'
+          }`}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         title={wrongChain ? 'Wrong network – click to switch' : undefined}
       >
         <motion.div
-          animate={{ 
+          animate={{
             rotate: isConnected && !wrongChain ? [0, 360] : 0,
             scale: isConnected ? [1, 1.1, 1] : 1
           }}
-          transition={{ 
+          transition={{
             rotate: { duration: 2, repeat: Infinity, ease: "linear" },
             scale: { duration: 1, repeat: Infinity }
           }}
         >
           {isConnected ? (
-            <CheckCircle className="h-4 w-4" />
+            <CheckCircle className="h-4 w-4 text-white" />
           ) : (
-            <Wallet className="h-4 w-4" />
+            <Wallet className="h-4 w-4 text-white" />
           )}
         </motion.div>
-        <span className="text-sm font-medium hidden sm:block">
-          {isConnected 
-            ? (wrongChain ? 'Switch to Base' : (connectedWallet?.name || truncateAddress(address))) 
+        <span className="text-sm text-white font-medium hidden sm:block">
+          {isConnected
+            ? (wrongChain ? 'Switch to Base' : (connectedWallet?.name || truncateAddress(address)))
             : 'Connect Wallet'}
         </span>
         {isConnected && !wrongChain && (
           <motion.div
             className="w-2 h-2 bg-emerald-400 rounded-full"
-            animate={{ 
+            animate={{
               scale: [1, 1.3, 1],
               opacity: [1, 0.7, 1]
             }}
@@ -329,7 +329,7 @@ function WalletConnect({
         {isConnected && wrongChain && (
           <motion.div
             className="w-2 h-2 bg-amber-400 rounded-full"
-            animate={{ 
+            animate={{
               scale: [1, 1.3, 1],
               opacity: [1, 0.7, 1]
             }}
@@ -338,46 +338,44 @@ function WalletConnect({
         )}
       </motion.button>
 
-      {/* Wallet Selection Modal */}
-      <AnimatePresence>
-        {showModal && (
-          <motion.div 
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            {/* Backdrop */}
-            <motion.div
-              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => !isConnecting && setShowModal(false)}
-            />
-            
-            {/* Modal */}
-            <motion.div
-              className="relative self-start w-full max-w-md  bg-gray-900/98 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl "
-              style={{
-                background: 'linear-gradient(135deg, rgba(17, 24, 39, 0.98) 0%, rgba(31, 41, 55, 0.98) 100%)',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(16, 185, 129, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-              }}
-              initial={{ opacity: 0, scale: 0.9}}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            >
+      {/* Wallet Selection Modal (rendered in portal) */}
+      {createPortal(
+        (
+          <AnimatePresence>
+            {showModal && (
+              <motion.div
+                className="fixed z-[2147483647] inset-0 flex items-center justify-center p-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                {/* Backdrop */}
+                <motion.div
+                  className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => !isConnecting && setShowModal(false)}
+                />
+
+                {/* Modal */}
+                <motion.div
+                  className="relative self-start w-full max-w-md rounded-xl border shadow-2xl bg-slate-900/90 border-blue-500/30 backdrop-blur-xl"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                >
               {/* Gradient Header */}
               <motion.div
-                className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500"
+                className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 rounded-xl"
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
                 transition={{ delay: 0.2, duration: 1 }}
               />
 
               {/* Modal Header */}
-              <div className="p-6 border-b border-white/10">
+              <div className="p-6 border border-blue-500/30">
                 <div className="flex items-center justify-between">
                   <motion.div
                     className="flex items-center gap-3"
@@ -386,12 +384,12 @@ function WalletConnect({
                     transition={{ delay: 0.1, duration: 0.5 }}
                   >
                     <motion.div
-                      className="bg-gradient-to-br from-emerald-500 to-blue-500 rounded-2xl flex items-center justify-center"
-                      animate={{ 
+                      className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center p-2"
+                      animate={{
                         rotate: [0, 360],
                         scale: [1, 1.05, 1]
                       }}
-                      transition={{ 
+                      transition={{
                         rotate: { duration: 8, repeat: Infinity, ease: "linear" },
                         scale: { duration: 3, repeat: Infinity }
                       }}
@@ -402,15 +400,15 @@ function WalletConnect({
                       <h3 className="text-xl font-bold text-white">
                         {isConnected ? 'Wallet Connected' : 'Connect Wallet'}
                       </h3>
-                      <p className="text-gray-400 text-sm">
+                      <p className="text-slate-400 text-sm">
                         {isConnected ? 'Manage your connection' : 'Choose your preferred wallet'}
                       </p>
                     </div>
                   </motion.div>
-                  
+
                   <motion.button
                     onClick={() => !isConnecting && setShowModal(false)}
-                    className="p-2 text-gray-400 hover:text-white transition-colors hover:bg-white/10 rounded-xl"
+                    className="p-2 text-slate-400 hover:text-white transition-colors hover:bg-white/10 rounded-xl"
                     whileHover={{ scale: 1.1, rotate: 90 }}
                     whileTap={{ scale: 0.9 }}
                     initial={{ x: 20, opacity: 0, rotate: -90 }}
@@ -426,7 +424,7 @@ function WalletConnect({
               {/* Modal Content */}
               <div className="overflow-y-auto max-h-[70vh]">
                 <div className="p-6">
-                <AnimatePresence mode="wait">
+                  <AnimatePresence mode="wait">
                     {connectionStep === 'select' && (
                       <motion.div
                         key="select"
@@ -444,18 +442,18 @@ function WalletConnect({
                             transition={{ delay: 0.2, duration: 0.5 }}
                           >
                             {wrongChain && (
-                              <div className="p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-200 text-sm">
+                              <div className="p-3 rounded-xl border border-blue-500/30 bg-amber-500/10 text-amber-200 text-sm">
                                 You are on <b>{getNetworkNameByChainId(chainId)}</b>. Please switch to <b>Base</b>.
                                 <button
                                   onClick={trySwitchToBase}
-                                  className="ml-3 inline-flex items-center px-3 py-1 rounded-lg border border-amber-400/40 hover:border-amber-300/60 hover:bg-amber-400/10"
+                                  className="ml-3 inline-flex items-center px-3 py-1 rounded-lg borderborder-blue-500/30 hover:border-amber-300/60 hover:bg-amber-400/10"
                                 >
                                   Switch to Base
                                 </button>
                               </div>
                             )}
 
-                            <div className="flex items-center gap-4 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
+                            <div className="flex items-center gap-4 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
                               <motion.div
                                 className="text-4xl"
                                 animate={{ scale: [1, 1.1, 1] }}
@@ -465,12 +463,12 @@ function WalletConnect({
                               </motion.div>
                               <div className="flex-1">
                                 <h4 className="font-bold text-white">{connectedWallet?.name || 'Wallet'}</h4>
-                                <p className="text-emerald-400 text-sm">Connected successfully</p>
-                                <p className="text-gray-400 text-xs mt-1">{truncateAddress(address)}</p>
+                                <p className="text-white text-sm">Connected successfully</p>
+                                <p className="text-slate-400 text-xs mt-1">{truncateAddress(address)}</p>
                               </div>
                               <motion.div
                                 className={`w-3 h-3 rounded-full ${wrongChain ? 'bg-amber-400' : 'bg-emerald-400'}`}
-                                animate={{ 
+                                animate={{
                                   scale: [1, 1.5, 1],
                                   opacity: [1, 0.5, 1]
                                 }}
@@ -479,19 +477,19 @@ function WalletConnect({
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
-                              <motion.div 
+                              <motion.div
                                 className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 text-center"
                                 whileHover={{ scale: 1.05 }}
                               >
                                 <div className="text-lg font-bold text-blue-400">{balanceData ? `${Number(balanceData.formatted).toFixed(4)} ${balanceData.symbol}` : '--'}</div>
-                                <div className="text-xs text-gray-400">Balance</div>
+                                <div className="text-xs text-slate-400">Balance</div>
                               </motion.div>
-                              <motion.div 
-                                className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-3 text-center"
+                              <motion.div
+                                className="bg-purple-500/10 border border-blue-500/30 rounded-xl p-3 text-center"
                                 whileHover={{ scale: 1.05 }}
                               >
                                 <div className="text-lg font-bold text-purple-400">{getNetworkNameByChainId(chainId)}</div>
-                                <div className="text-xs text-gray-400">Network</div>
+                                <div className="text-xs text-slate-400">Network</div>
                               </motion.div>
                             </div>
 
@@ -509,7 +507,7 @@ function WalletConnect({
 
                             <motion.button
                               onClick={handleDisconnect}
-                              className="w-full flex items-center justify-center gap-3 p-4 bg-red-500/20 hover:bg-red-500/30 text-red-400 hover:text-red-300 rounded-xl transition-all border border-red-500/20 hover:border-red-500/40"
+                              className="w-full flex items-center justify-center gap-3 p-4 bg-red-500 hover:bg-red-500/30 text-red-400 hover:text-red-300 rounded-xl transition-all border border-red-500/20 hover:border-red-500/40"
                               whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.98 }}
                             >
@@ -524,7 +522,7 @@ function WalletConnect({
                               <motion.button
                                 key={wallet.id}
                                 onClick={() => handleWalletSelect(wallet)}
-                                className="w-full flex items-center gap-4 p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10 hover:border-white/20 group"
+                                className="w-full flex items-center gap-4 p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-blue-500/30 hover:border-white/20 group"
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.3 + index * 0.1, duration: 0.4 }}
@@ -541,12 +539,12 @@ function WalletConnect({
                                 </motion.div>
                                 <div className="flex-1 text-left">
                                   <div className="flex items-center gap-2">
-                                    <h4 className="font-bold text-white group-hover:text-emerald-300 transition-colors">
+                                    <h4 className="font-bold text-white group-hover:text-blue-300 transition-colors">
                                       {wallet.name}
                                     </h4>
                                     {wallet.installed && (
                                       <motion.div
-                                        className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-xs rounded-full border border-emerald-500/30"
+                                        className="px-2 py-0.5 bg-blue-500/20 text-blue-300 text-xs rounded-full border border-blue-500/30"
                                         animate={{ scale: [1, 1.05, 1] }}
                                         transition={{ duration: 2, repeat: Infinity }}
                                       >
@@ -554,37 +552,37 @@ function WalletConnect({
                                       </motion.div>
                                     )}
                                   </div>
-                                  <p className="text-gray-400 text-sm group-hover:text-gray-300 transition-colors">
+                                  <p className="text-slate-400 text-sm group-hover:text-slate-300 transition-colors">
                                     {wallet.description}
                                   </p>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                {!wallet.installed && wallet.downloadLink && (
-                                <motion.a
-                                  href={wallet.downloadLink}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="p-1.5 text-gray-500 hover:text-blue-400 transition-colors"
-                                  whileHover={{ scale: 1.1 }}
-                                  title={`Download ${wallet.name}`}
-                                >
-                                  <Download className="h-4 w-4" />
-                                </motion.a>
-                              )}
+                                  {!wallet.installed && wallet.downloadLink && (
+                                    <motion.a
+                                      href={wallet.downloadLink}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="p-1.5 text-slate-400 hover:text-blue-400 transition-colors"
+                                      whileHover={{ scale: 1.1 }}
+                                      title={`Download ${wallet.name}`}
+                                    >
+                                      <Download className="h-4 w-4" />
+                                    </motion.a>
+                                  )}
 
-                              {wallet.shareLink && (
-                                <motion.a
-                                  href={wallet.shareLink}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  animate={{ x: [0, 3, 0] }}
-                                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                                  className="opacity-50 group-hover:opacity-100 transition-opacity"
-                                  title={`Visit ${wallet.name} Website`}
-                                >
-                                  <ExternalLink className="h-4 w-4 text-gray-500 hover:text-emerald-400" />
-                                </motion.a>
-                              )}
+                                  {wallet.shareLink && (
+                                    <motion.a
+                                      href={wallet.shareLink}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      animate={{ x: [0, 3, 0] }}
+                                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                                      className="opacity-50 group-hover:opacity-100 transition-opacity"
+                                      title={`Visit ${wallet.name} Website`}
+                                    >
+                                      <ExternalLink className="h-4 w-4 text-slate-400 hover:text-blue-300" />
+                                    </motion.a>
+                                  )}
                                 </div>
                               </motion.button>
                             ))}
@@ -602,18 +600,18 @@ function WalletConnect({
                         className="text-center py-8"
                       >
                         <motion.div
-                          className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full mx-auto mb-6 flex items-center justify-center relative"
-                          animate={{ 
+                          className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mx-auto mb-6 flex items-center justify-center relative"
+                          animate={{
                             rotate: [0, 360],
                             scale: [1, 1.1, 1]
                           }}
-                          transition={{ 
+                          transition={{
                             rotate: { duration: 2, repeat: Infinity, ease: "linear" },
                             scale: { duration: 1, repeat: Infinity }
                           }}
                         >
                           <RefreshCw className="h-8 w-8 text-white" />
-                          
+
                           {/* Spinning ring */}
                           <motion.div
                             className="absolute inset-0 border-4 border-transparent border-t-white rounded-full"
@@ -622,11 +620,11 @@ function WalletConnect({
                           />
                         </motion.div>
                         <h4 className="text-xl font-bold text-white mb-2">Connecting...</h4>
-                        <p className="text-gray-400 mb-4">
+                        <p className="text-slate-400 mb-4">
                           Please confirm the connection in your {SUPPORTED_WALLETS.find(w => w.id === isConnecting)?.name} wallet
                         </p>
                         <motion.div
-                          className="flex items-center justify-center gap-2 text-sm text-emerald-400"
+                          className="flex items-center justify-center gap-2 text-sm text-blue-300"
                           animate={{ opacity: [0.5, 1, 0.5] }}
                           transition={{ duration: 2, repeat: Infinity }}
                         >
@@ -656,7 +654,7 @@ function WalletConnect({
                           >
                             <CheckCircle className="h-8 w-8 text-white" />
                           </motion.div>
-                          
+
                           {/* Success ring */}
                           <motion.div
                             className="absolute inset-0 border-4 border-emerald-400/30 rounded-full"
@@ -668,7 +666,7 @@ function WalletConnect({
                           />
                         </motion.div>
                         <h4 className="text-xl font-bold text-white mb-2">Connected!</h4>
-                        <p className="text-gray-400">
+                        <p className="text-slate-400">
                           Your wallet has been connected successfully
                         </p>
                       </motion.div>
@@ -680,6 +678,9 @@ function WalletConnect({
           </motion.div>
         )}
       </AnimatePresence>
+        ),
+        document.body
+      )}
     </>
   );
 }
