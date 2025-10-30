@@ -4,13 +4,20 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Montserrat', 'Roboto', 'sans‑serif';
   background: linear-gradient(135deg, #0a0a0f 0%, #1a1a1e 100%);
   color: #fff;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+h1, h2, h3, .btn {
+  font-family: '', 'Montserrat', sans‑serif;
+}
+
+p, input, form {
+  font-family: 'Inter', 'Lato', sans‑serif;
 }
 
 /* Auth container */

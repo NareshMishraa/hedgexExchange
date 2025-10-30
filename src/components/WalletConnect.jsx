@@ -12,17 +12,12 @@ import {
   Smartphone,
   RefreshCw
 } from 'lucide-react';
-// import { SUPPORTED_WALLETS } from './dashboard/dashboardData';
 import { useAccount, useBalance, useConnect, useDisconnect, useChainId } from 'wagmi';
-/* wagmi v2 hook name */
 import { useSwitchChain } from 'wagmi';
-/* if you’re on wagmi v1, swap import to:
-   import { useSwitchNetwork as useSwitchChain } from 'wagmi';
-*/
-import { useGetAllWalletsMutation } from '../services/auth';
+import { useGetAllWalletsMutation } from '../api/authApi';
 import localStore from "./localStore";
-// import { useSelector } from "react-redux";
-import {STORAGES} from "./Store";
+import { useSelector } from "react-redux";
+import {STORAGES, SUPPORTED_WALLETS} from "./Store";
 import {toast} from "react-toastify";
 
 /* -------- Base Mainnet constants -------- */
@@ -211,22 +206,22 @@ function WalletConnect({
 
       // Authorization list check
       if (!bypassAuthForIdo) {
-        const matchedEntry = Array.isArray(walletsData)
-          ? walletsData.find(
-              (entry) =>
-                entry?.address &&
-                entry.address.toLowerCase() === connectedAddress.toLowerCase()
-            )
-          : null;
-        const isAllowed = !!matchedEntry;
-        if (!isAllowed) {
-          disconnect();
-          setConnectionStep('select');
-          setIsConnecting(null);
-          setShowModal(true);
-          toast.error('Your wallet is not whitelisted. Please whitelist it to access our services.');
-          return;
-        }
+        // const matchedEntry = Array.isArray(walletsData)
+        //   ? walletsData.find(
+        //       (entry) =>
+        //         entry?.address &&
+        //         entry.address.toLowerCase() === connectedAddress.toLowerCase()
+        //     )
+        //   : null;
+        // const isAllowed = !!matchedEntry;
+        // if (!isAllowed) {
+        //   disconnect();
+        //   setConnectionStep('select');
+        //   setIsConnecting(null);
+        //   setShowModal(true);
+        //   toast.error('Your wallet is not whitelisted. Please whitelist it to access our services.');
+        //   return;
+        // }
         // Only from here on you can safely use matchedEntry data like referralCode
         const referralCode = matchedEntry?.referralCode;
         if (referralCode) {
@@ -260,31 +255,32 @@ function WalletConnect({
   };
 
   // wallet check 
-//   const { email } = useSelector((state) => state.global);
-  const localEmail = localStore?.getItem(STORAGES?.REMEMBERED_EMAIL);
-  const [getAllWallets] = useGetAllWalletsMutation();
+  // const [getAllWallets] = useGetAllWalletsMutation();
   const [walletsData, setWalletsData] = useState([]);
-
-  useEffect(() => {
-    const userEmail = email || localEmail;
-    const fetchWallets = async () => {
-      try {
-        if (!bypassAuthForIdo) {
-        const response = await getAllWallets({ email: userEmail }).unwrap();
-          if (response.wallets.length > 0) setWalletsData(response.wallets);
-        }
-      } catch (error) {
-        // console.error('Failed to fetch wallet status:', error);
-      }
-    };
-    fetchWallets();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showModal]);
+  
+  // useEffect(() => {
+  //   const localEmail = localStore?.getItem(STORAGES?.REMEMBERED_EMAIL);
+  //   const fetchWallets = async () => {
+  //     try {
+  //       if (!bypassAuthForIdo && localEmail) {
+  //         const response = await getAllWallets({ email: localEmail }).unwrap();
+  //         if (response.wallets && response.wallets.length > 0) {
+  //           setWalletsData(response.wallets);
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error('Failed to fetch wallet status:', error);
+  //     }
+  //   };
+    
+  //   fetchWallets();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [showModal]);
 
   const wrongChain = isConnected && chainId && chainId !== BASE_CHAIN_ID;
 
   return (
-    <>
+     <>
       {/* Wallet Connect Button */}
       <motion.button
         onClick={() => setShowModal(true)}
